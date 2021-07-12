@@ -9,15 +9,17 @@ from mcstatus import MinecraftServer
 intents = discord.Intents.all()
 client = discord.Client(intents=intents)
 
-print('\n\nBOT ONLINE\n\n')
-
 #declare server 
 server = MinecraftServer.lookup("gamerhaven.apexmc.co")
 serverTest = MinecraftServer.lookup("gamerhaven.secure.pebble.host")
 
+@client.event
+async def on_ready():
+  print('\n\nBOT ONLINE\n\n')
+
 async def checkStatus():
+  await client.wait_until_ready()
   while True:
-    status = server.status()
     #query = server.query()
     #print("The server has the following players online: {0}".format(", ".join(query.players.names)))
 
@@ -27,13 +29,9 @@ async def checkStatus():
 
     try:
       status = server.status()
-      test = status.latency
       online = True
     except:
       online = False
-
-    print("-----")
-    print(str(online))
 
     if not online:
       for messages in await channel.history(limit=None, oldest_first=True).flatten():
@@ -41,13 +39,11 @@ async def checkStatus():
 
       embed = discord.Embed(color=0x593695, description="Server is currently down.")
       embed.set_author(name="❌ | @" + client.user.name)
-      await channel.send(embed=embed, content="<@!274245369389645827>")
+      await channel.send(embed=embed, content="@!274245369389645827>")
 
       while not online:
         try:
           status = server.status()
-          test = status.latency
-          online = True
         except:
           online = False
     
@@ -57,30 +53,44 @@ async def checkStatus():
 
       embed = discord.Embed(color=0x593695, description="Server is currently up with **" + str(status.players.online) + "** players online.")
       embed.set_author(name="✔️ | @" + client.user.name)
-      await channel.send(embed=embed, content="<@!274245369389645827>")
+      await channel.send(embed=embed, content="@!274245369389645827>")
 
       while online:
+        print("sayy")
         try:
           status = server.status()
-          test = status.latency
-          online = True
         except:
           online = False
 
-
+done = False
 async def checkPlayers():
+  await client.wait_until_ready()
+  channel = await client.fetch_channel(int(859141243983364136))
   while True:
-    await asyncio.sleep(600)
+    await asyncio.sleep(1)
+    print("test")
 
-    status = server.status()
+    try:
+      status = server.status()
+      online = True
+    except:
+      online = False
+    print("test")
 
-    print("The server has {0} players and repli ed in {1} ms".format(status.players.online, status.latency))
-
-    for guild in client.guilds:
-      for channel in guild.voice_channels:
-        if "Players:" in channel.name:
-          if channel.name != "「👥」Players: " + str(status.players.online):
-            await channel.edit(name="「👥」Players: "+ str(status.players.online))
+    #try:
+    print("test")
+    for messages in await channel.history(limit=None, oldest_first=True).flatten():
+      embedt = messages.embeds[0]
+    print("test2")
+    if str(status.players.online) not in embedt.description and online:
+      print("test3")
+      embed = discord.Embed(color=0x593695, description="Server is currently up with **" + str(status.players.online) + "** players online.")
+      embed.set_author(name="✔️ | @" + client.user.name)
+      await messages.edit(embed=embed)
+    print("test4")
+    #except Exception as x:
+      #print(str(x))
+  print("test5")
 
 client.loop.create_task(checkPlayers())
 client.loop.create_task(checkStatus())
