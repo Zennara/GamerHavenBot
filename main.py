@@ -23,7 +23,7 @@ async def checkStatus():
     #query = server.query()
     #print("The server has the following players online: {0}".format(", ".join(query.players.names)))
 
-    await asyncio.sleep(1)
+    await asyncio.sleep(5)
 
     channel = await client.fetch_channel(int(859141243983364136))
 
@@ -32,35 +32,35 @@ async def checkStatus():
       online = True
     except:
       online = False
-
-    if not online:
-      for messages in await channel.history(limit=None, oldest_first=True).flatten():
-        await messages.delete()
-
-      embed = discord.Embed(color=0x593695, description="Server is currently down.")
-      embed.set_author(name="❌ | @" + client.user.name)
-      await channel.send(embed=embed, content="@!274245369389645827>")
-
-      while not online:
-        try:
-          status = server.status()
-        except:
-          online = False
     
-    if online:
-      for messages in await channel.history(limit=None, oldest_first=True).flatten():
-        await messages.delete()
+    for messages in await channel.history(limit=None, oldest_first=True).flatten():
+      msg = messages
 
-      embed = discord.Embed(color=0x593695, description="Server is currently up with **" + str(status.players.online) + "** players online.")
-      embed.set_author(name="✔️ | @" + client.user.name)
-      await channel.send(embed=embed, content="@!274245369389645827>")
-
-      while online:
-        print("sayy")
+    try:
+      if not online and "up" in msg.embeds[0].description:
         try:
-          status = server.status()
+          await msg.delete()
         except:
-          online = False
+          pass
+
+        embed = discord.Embed(color=0x593695, description="Server is currently down.")
+        embed.set_author(name="❌ | @" + client.user.name)
+        await channel.send(embed=embed, content="<@!274245369389645827>")
+      
+      if online and "down" in msg.embeds[0].description:
+        try:
+          await msg.delete()
+        except:
+          pass
+
+        embed = discord.Embed(color=0x593695, description="Server is currently up with **" + str(status.players.online) + "** players online.")
+        embed.set_author(name="✔️ | @" + client.user.name)
+        await channel.send(embed=embed, content="<@!274245369389645827>")
+    except:
+      embed = discord.Embed(color=0x593695, description="Wait...")
+      embed.set_author(name="✔️ | @" + client.user.name)
+      await channel.send(embed=embed, content="<@!274245369389645827>")
+
 
 done = False
 async def checkPlayers():
@@ -77,19 +77,19 @@ async def checkPlayers():
       online = False
     print("test")
 
-    #try:
-    print("test")
-    for messages in await channel.history(limit=None, oldest_first=True).flatten():
-      embedt = messages.embeds[0]
-    print("test2")
-    if str(status.players.online) not in embedt.description and online:
-      print("test3")
-      embed = discord.Embed(color=0x593695, description="Server is currently up with **" + str(status.players.online) + "** players online.")
-      embed.set_author(name="✔️ | @" + client.user.name)
-      await messages.edit(embed=embed)
-    print("test4")
-    #except Exception as x:
-      #print(str(x))
+    try:
+      print("test")
+      for messages in await channel.history(limit=None, oldest_first=True).flatten():
+        embedt = messages.embeds[0]
+      print("test2")
+      if str(status.players.online) not in embedt.description and online:
+        print("test3")
+        embed = discord.Embed(color=0x593695, description="Server is currently up with **" + str(status.players.online) + "** players online.")
+        embed.set_author(name="✔️ | @" + client.user.name)
+        await messages.edit(embed=embed)
+      print("test4")
+    except Exception as x:
+      print(str(x))
   print("test5")
 
 client.loop.create_task(checkPlayers())
