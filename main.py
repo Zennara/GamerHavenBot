@@ -68,29 +68,22 @@ async def checkPlayers():
   channel = await client.fetch_channel(int(859141243983364136))
   while True:
     await asyncio.sleep(1)
-    print("test")
 
     try:
       status = server.status()
       online = True
     except:
       online = False
-    print("test")
 
     try:
-      print("test")
       for messages in await channel.history(limit=None, oldest_first=True).flatten():
         embedt = messages.embeds[0]
-      print("test2")
       if str(status.players.online) not in embedt.description and online:
-        print("test3")
         embed = discord.Embed(color=0x593695, description="Server is currently up with **" + str(status.players.online) + "** players online.")
         embed.set_author(name="✔️ | @" + client.user.name)
         await messages.edit(embed=embed)
-      print("test4")
     except Exception as x:
       print(str(x))
-  print("test5")
 
 client.loop.create_task(checkPlayers())
 client.loop.create_task(checkStatus())
